@@ -1,0 +1,5 @@
+[EmptyFieldsViewModesWebTestCase]
+name = Empty Fields View Modes
+description = Test the empty text is correctly added per view mode.
+group = Empty Fields
+file = empty_fields.test

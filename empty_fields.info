@@ -1,11 +1,7 @@
 name = Empty Fields
 description = Provides options for displaying empty fields.
-core = 7.x
+backdrop = 1.x
+type = module
 package = Fields
-files[] = plugins/empty_fields_handler.inc
-files[] = plugins/empty_fields_handler_text.inc
-files[] = plugins/empty_fields_handler_label.inc
-files[] = tests/empty_fields.test
 
 dependencies[] = field
-dependencies[] = field_formatter_settings

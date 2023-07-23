@@ -8,20 +8,14 @@
 /**
  * Helper test class with some added functions for testing.
  */
-class EmptyFieldsViewModesWebTestCase extends DrupalWebTestCase {
+class EmptyFieldsViewModesWebTestCase extends BackdropWebTestCase {
 
-  public static function getInfo() {
-    return array(
-      'name' => 'Empty Fields View Modes',
-      'description' => 'Test the empty text is correctly added per view mode.',
-      'group' => 'Empty Fields',
-    );
-  }
+  protected $webUser;
 
   public function setUp() {
     parent::setUp(array('field_test', 'empty_fields'));
 
-    $this->webUser = $this->drupalCreateUser(array(
+    $this->webUser = $this->backdropCreateUser(array(
       'access field_test content',
       'administer field_test content',
       'administer content types',
@@ -29,7 +23,7 @@ class EmptyFieldsViewModesWebTestCase extends DrupalWebTestCase {
       'administer nodes',
       'bypass node access',
     ));
-    $this->drupalLogin($this->webUser);
+    $this->backdropLogin($this->webUser);
   }
 
 
@@ -42,19 +36,19 @@ class EmptyFieldsViewModesWebTestCase extends DrupalWebTestCase {
       'promote' => 1,
       'title' => $this->randomName(8),
     );
-    $this->drupalPost("node/add/page", $edit, t('Save'));
-    $node = $this->drupalGetNodeByTitle($edit['title']);
+    $this->backdropPost("node/add/page", $edit, t('Save'));
+    $node = $this->backdropGetNodeByTitle($edit['title']);
 
     // Checks full and teaser display modes via default.
     $edit = array(
       'view_modes_custom[teaser]' => FALSE,
     );
-    $this->drupalPost('admin/structure/types/manage/page/display', $edit, t('Save'));
+    $this->backdropPost('admin/structure/types/manage/page/display', $edit, t('Save'));
 
-    $this->drupalGet('node/' . $node->nid);
+    $this->backdropGet('node/' . $node->nid);
     $this->assertText($node->title);
 
-    $this->drupalGet('node');
+    $this->backdropGet('node');
     $this->assertText($node->title);
 
     // Enable the default setting to use empty text settings.
@@ -65,14 +59,14 @@ class EmptyFieldsViewModesWebTestCase extends DrupalWebTestCase {
     field_update_instance($instance_info);
 
     // Checks full and teaser display modes.
-    $this->drupalGet('node/' . $node->nid);
+    $this->backdropGet('node/' . $node->nid);
     $this->assertText($node->title);
     $this->assertText('foo bar');
 
-    $this->drupalGet('admin/structure/types/manage/page/display');
-    $this->drupalGet('admin/structure/types/manage/page/display/teaser');
+    $this->backdropGet('admin/structure/types/manage/page/display');
+    $this->backdropGet('admin/structure/types/manage/page/display/teaser');
 
-    $this->drupalGet('node');
+    $this->backdropGet('node');
     $this->assertText($node->title);
     $this->assertText('foo bar');
 
@@ -81,7 +75,7 @@ class EmptyFieldsViewModesWebTestCase extends DrupalWebTestCase {
       'view_modes_custom[full]' => 'full',
       'view_modes_custom[teaser]' => 'teaser',
     );
-    $this->drupalPost('admin/structure/types/manage/page/display', $edit, t('Save'));
+    $this->backdropPost('admin/structure/types/manage/page/display', $edit, t('Save'));
 
     $instance_info = field_info_instance('node', 'body', 'page');
     $instance_info['display']['teaser']['settings']['empty_fields_handler'] = 'EmptyFieldText';
@@ -93,15 +87,15 @@ class EmptyFieldsViewModesWebTestCase extends DrupalWebTestCase {
     $instance_info['display']['full']['settings']['empty_fields_handler'] = '';
     field_update_instance($instance_info);
 
-    $this->drupalGet('node/' . $node->nid);
+    $this->backdropGet('node/' . $node->nid);
     $this->assertText($node->title);
     $this->assertNoText('foo bar');
     $this->assertNoText('bar foo');
 
-    $this->drupalGet('admin/structure/types/manage/page/display');
-    $this->drupalGet('admin/structure/types/manage/page/display/teaser');
+    $this->backdropGet('admin/structure/types/manage/page/display');
+    $this->backdropGet('admin/structure/types/manage/page/display/teaser');
 
-    $this->drupalGet('node');
+    $this->backdropGet('node');
     $this->assertText($node->title);
     $this->assertText('bar foo');
   }
@@ -115,14 +109,14 @@ class EmptyFieldsViewModesWebTestCase extends DrupalWebTestCase {
       'promote' => 1,
       'title' => $this->randomName(8),
     );
-    $this->drupalPost("node/add/page", $edit, t('Save'));
-    $node = $this->drupalGetNodeByTitle($edit['title']);
+    $this->backdropPost("node/add/page", $edit, t('Save'));
+    $node = $this->backdropGetNodeByTitle($edit['title']);
 
     $edit = array(
       'view_modes_custom[full]' => 'full',
       'view_modes_custom[teaser]' => 'teaser',
     );
-    $this->drupalPost('admin/structure/types/manage/page/display', $edit, t('Save'));
+    $this->backdropPost('admin/structure/types/manage/page/display', $edit, t('Save'));
 
     $instance_info = field_info_instance('node', 'body', 'page');
     $instance_info['display']['default']['settings']['empty_fields_handler'] = 'EmptyFieldText';
@@ -143,19 +137,19 @@ class EmptyFieldsViewModesWebTestCase extends DrupalWebTestCase {
     field_attach_prepare_view('node', array($node->nid => $node), 'default', $langcode);
     entity_prepare_view('node', array($node->nid => $node), $langcode);
     $build = field_attach_view('node', $node, 'default', $langcode);
-    $output .= drupal_render($build);
+    $output .= backdrop_render($build);
 
     unset($node->_field_view_prepared);
     field_attach_prepare_view('node', array($node->nid => $node), 'full', $langcode);
     entity_prepare_view('node', array($node->nid => $node), $langcode);
     $build = field_attach_view('node', $node, 'full', $langcode);
-    $output .= drupal_render($build);
+    $output .= backdrop_render($build);
 
     unset($node->_field_view_prepared);
     field_attach_prepare_view('node', array($node->nid => $node), 'teaser', $langcode);
     entity_prepare_view('node', array($node->nid => $node), $langcode);
     $build = field_attach_view('node', $node, 'teaser', $langcode);
-    $output .= drupal_render($build);
+    $output .= backdrop_render($build);
 
     $this->verbose($output);
     $this->assertTrue(strpos($output, 'foo bar 1'));

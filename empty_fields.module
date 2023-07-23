@@ -5,6 +5,17 @@
  */
 
 /**
+ * Implements hook_autoload_info().
+ */
+function empty_fields_autoload_info() {
+  return array(
+    'EmptyFieldHandler' => 'plugins/empty_fields_handler.inc',
+    'EmptyFieldText' => 'plugins/empty_fields_handler_text.inc',
+    'EntityLabelEmptyFieldHandler' => 'plugins/empty_fields_handler_label.inc',
+  );
+}
+
+/**
  * Implements hook_field_formatter_info_alter().
  */
 function empty_fields_field_formatter_info_alter(&$info) {
@@ -67,7 +78,7 @@ function empty_fields_load_plugin($instance, $view_mode_settings, $view_mode = '
  *   The id of the field as displayed to the user.
  */
 function empty_fields_generate_field_name($field_id, $class_name) {
-  return 'empty_fields_' . drupal_strtolower($class_name) . '_' . $field_id;
+  return 'empty_fields_' . backdrop_strtolower($class_name) . '_' . $field_id;
 }
 
 /**
@@ -229,7 +240,7 @@ function empty_fields_field_attach_view_alter(&$output, $context) {
         case 'text_with_summary':
         case 'text_summary_or_trimmed':
           foreach (element_children($output[$field_name]) as $delta) {
-            if (!empty($output[$field_name][$delta]['#markup']) || drupal_strlen($output[$field_name][$delta]['#markup'])) {
+            if (!empty($output[$field_name][$delta]['#markup']) || backdrop_strlen($output[$field_name][$delta]['#markup'])) {
               continue 3;
             }
           }
@@ -247,7 +258,7 @@ function empty_fields_field_attach_view_alter(&$output, $context) {
     if ($plugin) {
       $markup = $plugin->react($context);
       // Do not render empty values.
-      if (!empty($markup) || drupal_strlen($markup)) {
+      if (!empty($markup) || backdrop_strlen($markup)) {
         if (empty($context['language'])) {
           $language = field_language($entity_type, $entity, $field_name);
         }
@@ -291,7 +302,7 @@ function empty_fields_field_attach_view_alter(&$output, $context) {
 function empty_fields_preprocess_field(&$variables) {
   if (!empty($variables['element']['#empty_fields_empty_class'])) {
     $classes = explode(' ', $variables['element']['#empty_fields_empty_class']);
-    $classes = array_map('drupal_html_class', $classes);
+    $classes = array_map('backdrop_html_class', $classes);
     $variables['classes_array'] = array_unique(array_merge($variables['classes_array'], array_filter($classes)));
   }
 }
