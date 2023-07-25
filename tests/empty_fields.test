@@ -19,6 +19,7 @@ class EmptyFieldsViewModesWebTestCase extends BackdropWebTestCase {
       'access field_test content',
       'administer field_test content',
       'administer content types',
+      'administer view modes',
       'administer fields',
       'administer nodes',
       'bypass node access',
@@ -36,14 +37,10 @@ class EmptyFieldsViewModesWebTestCase extends BackdropWebTestCase {
       'promote' => 1,
       'title' => $this->randomName(8),
     );
-    $this->backdropPost("node/add/page", $edit, t('Save'));
+    $this->backdropPost("node/add/post", $edit, t('Save'));
     $node = $this->backdropGetNodeByTitle($edit['title']);
 
-    // Checks full and teaser display modes via default.
-    $edit = array(
-      'view_modes_custom[teaser]' => FALSE,
-    );
-    $this->backdropPost('admin/structure/types/manage/page/display', $edit, t('Save'));
+    $this->backdropPost('admin/structure/types/manage/post/display/teaser/reset', array(), t('Reset'));
 
     $this->backdropGet('node/' . $node->nid);
     $this->assertText($node->title);
@@ -52,38 +49,41 @@ class EmptyFieldsViewModesWebTestCase extends BackdropWebTestCase {
     $this->assertText($node->title);
 
     // Enable the default setting to use empty text settings.
-    $instance_info = field_info_instance('node', 'body', 'page');
+    $instance_info = field_info_instance('node', 'body', 'post');
     $instance_info['display']['default']['settings']['empty_fields_handler'] = 'EmptyFieldText';
     $instance_info['display']['default']['settings']['empty_fields_emptyfieldtext_empty_text'] = 'foo bar';
     $instance_info['display']['default']['settings']['empty_fields_empty_class'] = 'fb-class';
     field_update_instance($instance_info);
 
-    // Checks full and teaser display modes.
+    // Checks default and teaser display modes.
     $this->backdropGet('node/' . $node->nid);
     $this->assertText($node->title);
     $this->assertText('foo bar');
 
-    $this->backdropGet('admin/structure/types/manage/page/display');
-    $this->backdropGet('admin/structure/types/manage/page/display/teaser');
+    $this->backdropGet('admin/structure/types/manage/post/display/full');
+    $this->backdropGet('admin/structure/types/manage/post/display/teaser');
 
     $this->backdropGet('node');
     $this->assertText($node->title);
     $this->assertText('foo bar');
 
-    // Enable and configure the teaser display.
-    $edit = array(
-      'view_modes_custom[full]' => 'full',
-      'view_modes_custom[teaser]' => 'teaser',
-    );
-    $this->backdropPost('admin/structure/types/manage/page/display', $edit, t('Save'));
+    $this->backdropGet('admin/structure/types/manage/post/display');
+    list($enable_link) = $this->xpath('//tr[contains(@class, "view-mode--full")]//a');
+    $enable_href_parts = backdrop_parse_url($enable_link['href']);
+    $this->backdropGet($enable_href_parts['path'], $enable_href_parts);
 
-    $instance_info = field_info_instance('node', 'body', 'page');
+    $this->backdropGet('admin/structure/types/manage/post/display');
+    list($enable_link) = $this->xpath('//tr[contains(@class, "view-mode--teaser")]//a');
+    $enable_href_parts = backdrop_parse_url($enable_link['href']);
+    $this->backdropGet($enable_href_parts['path'], $enable_href_parts);
+
+    $instance_info = field_info_instance('node', 'body', 'post');
     $instance_info['display']['teaser']['settings']['empty_fields_handler'] = 'EmptyFieldText';
     $instance_info['display']['teaser']['settings']['empty_fields_emptyfieldtext_empty_text'] = 'bar foo';
     $instance_info['display']['teaser']['settings']['empty_fields_empty_class'] = 'bf-class';
     field_update_instance($instance_info);
 
-    $instance_info = field_info_instance('node', 'body', 'page');
+    $instance_info = field_info_instance('node', 'body', 'post');
     $instance_info['display']['full']['settings']['empty_fields_handler'] = '';
     field_update_instance($instance_info);
 
@@ -92,8 +92,8 @@ class EmptyFieldsViewModesWebTestCase extends BackdropWebTestCase {
     $this->assertNoText('foo bar');
     $this->assertNoText('bar foo');
 
-    $this->backdropGet('admin/structure/types/manage/page/display');
-    $this->backdropGet('admin/structure/types/manage/page/display/teaser');
+    $this->backdropGet('admin/structure/types/manage/post/display/full');
+    $this->backdropGet('admin/structure/types/manage/post/display/teaser');
 
     $this->backdropGet('node');
     $this->assertText($node->title);
@@ -109,16 +109,15 @@ class EmptyFieldsViewModesWebTestCase extends BackdropWebTestCase {
       'promote' => 1,
       'title' => $this->randomName(8),
     );
-    $this->backdropPost("node/add/page", $edit, t('Save'));
+    $this->backdropPost("node/add/post", $edit, t('Save'));
     $node = $this->backdropGetNodeByTitle($edit['title']);
 
-    $edit = array(
-      'view_modes_custom[full]' => 'full',
-      'view_modes_custom[teaser]' => 'teaser',
-    );
-    $this->backdropPost('admin/structure/types/manage/page/display', $edit, t('Save'));
+    $this->backdropGet('admin/structure/types/manage/post/display');
+    list($enable_link) = $this->xpath('//tr[contains(@class, "view-mode--full")]//a');
+    $enable_href_parts = backdrop_parse_url($enable_link['href']);
+    $this->backdropGet($enable_href_parts['path'], $enable_href_parts);
 
-    $instance_info = field_info_instance('node', 'body', 'page');
+    $instance_info = field_info_instance('node', 'body', 'post');
     $instance_info['display']['default']['settings']['empty_fields_handler'] = 'EmptyFieldText';
     $instance_info['display']['default']['settings']['empty_fields_emptyfieldtext_empty_text'] = 'foo bar 1';
     $instance_info['display']['default']['settings']['empty_fields_empty_class'] = 'fb-class-1';

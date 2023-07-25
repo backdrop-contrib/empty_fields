@@ -303,9 +303,10 @@ function empty_fields_preprocess_field(&$variables) {
   if (!empty($variables['element']['#empty_fields_empty_class'])) {
     $classes = explode(' ', $variables['element']['#empty_fields_empty_class']);
     $classes = array_map('backdrop_html_class', $classes);
-    $variables['classes_array'] = array_unique(array_merge($variables['classes_array'], array_filter($classes)));
+    $variables['classes'] = array_unique(array_merge($variables['classes'], array_filter($classes)));
   }
 }
+
 /**
  * Implements hook_i18n_string_list_TEXTGROUP_alter().
  *
