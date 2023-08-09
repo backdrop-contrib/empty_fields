@@ -65,7 +65,7 @@ class EmptyFieldText extends EmptyFieldHandler {
    *   Text for the field formatter settings summary.
    */
   public function summaryText() {
-    return t('Empty Text: @empty_text', array('@empty_text' => $this->options['empty_text']));
+    return t('Empty Text: @empty_text', array('@empty_text' => truncate_utf8($this->options['empty_text'], 20, FALSE, TRUE)));
   }
 
 }
