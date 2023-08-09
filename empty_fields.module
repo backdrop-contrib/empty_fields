@@ -116,7 +116,7 @@ function empty_fields_field_formatter_settings_summary_alter(&$summary, $context
   $settings = $display['settings'];
 
   if ($plugin = empty_fields_load_plugin($context['instance'], $settings, $context['view_mode'])) {
-    $summary .= $plugin->summaryText();
+    $summary .= (!empty($summary) ? '<br>' : '') . $plugin->summaryText();
     if (!empty($settings['empty_fields_empty_class'])) {
       $summary .= '<br />' . t('Add class when empty: @classes', array('@classes' => $settings['empty_fields_empty_class']));
     }
